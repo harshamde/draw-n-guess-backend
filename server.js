@@ -1,7 +1,8 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const { joinRoom, createRoom } = require('./socketHelper');
+const { SOCKET_CONNECTION, CREATE_ROOOM } = require('./common/socketEvents');
+const controllers = require('./controller/controllers');
 
 //=======================================================================================================
 
@@ -14,24 +15,18 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["get", "post"]
   }
 });
 
 
 io.on('connection', (socket) => {
-  socket.emit('connected', { status: "SUCCESS", message: "Successfully connected to socket!" });
+  socket.emit(SOCKET_CONNECTION, { status: "SUCCESS", message: "Successfully connected to socket!" });
 
-  socket.on('create-room', async (data, callback) => {
-    callback(await createRoom(socket, data));
+  socket.onAny((event, data) => {
+    controllers.getSocketController().handleSocketEvents({ socket, event, data });
   });
-
-  socket.on('join-room', async (data, callback) => {
-    callback(await joinRoom(socket, data));
-  });
-  
-  // socket.emit("connected", { socketId: socket.id, room: socket.handshake.query.name });
 
 });
 
@@ -39,10 +34,13 @@ io.on('connection', (socket) => {
 
 //========================================================================================================
 
+app.get("/test", (request, response) => {
+  response.json({ status: "SUCCESS" });
+});
+
+
 httpServer.listen(9000, () => {
-  console.log(` 
-  -----------------------------------
-     🚀 Listening at port 9000 🚀
-  -----------------------------------
-  `);
+  console.log(`===================================
+  🚀 Listening at port 9000 🚀
+===================================`);
 });
