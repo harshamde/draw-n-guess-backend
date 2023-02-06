@@ -1,9 +1,14 @@
 let roomsArray = [];
 
+// ========================================== getRoomUsingRoomId() ===========================================================
+
 const getRoomUsingRoomId = (roomId) => {
     const newRoomsArray = roomsArray.filter(room => room.roomId === roomId);
     return newRoomsArray[0];
 };
+
+
+// ========================================== getClientUsingRoomIdAndClientId() ==============================================
 
 const getClientUsingRoomIdAndClientId = (roomId, clientId) => {
     const room = getRoomUsingRoomId(roomId);
@@ -11,6 +16,9 @@ const getClientUsingRoomIdAndClientId = (roomId, clientId) => {
 
     return clientsArray[0];
 };
+
+
+// ========================================== isClientAlreadyPresentInRoom() =================================================
 
 const isClientAlreadyPresentInRoom = (roomId, clientId) => {
     const room = getRoomUsingRoomId(roomId);
@@ -22,7 +30,14 @@ const isClientAlreadyPresentInRoom = (roomId, clientId) => {
     return false;
 };
 
-const doesRoomAlreadyExists = (roomId) => {
+
+// ========================================== doesRoomAlreadyExists() ========================================================
+
+const doesRoomAlreadyExists = (socket, roomId) => {
+    const roomAlreadyExistsInSocket = socket.adapter.rooms.has(room.roomId);
+    if (roomAlreadyExistsInSocket) {
+        return roomAlreadyExistsInSocket;
+    }
     for (let room of roomsArray) {
         if (room.roomId === roomId) {
             return true;
@@ -30,6 +45,9 @@ const doesRoomAlreadyExists = (roomId) => {
     }
     return false;
 };
+
+
+// ========================================== addNewClientToRoom() ===========================================================
 
 const addNewClientToRoom = (roomId, client) => {
     const clientAlreadyExists = isClientAlreadyPresentInRoom(roomId, client);
@@ -42,16 +60,24 @@ const addNewClientToRoom = (roomId, client) => {
     return true;
 };
 
-const createNewRoom = (room) => {
-    const roomAlreadyExists = doesRoomAlreadyExists(room.roomId);
 
-    if (roomAlreadyExists) {
-        return false;
+// ========================================== createNewRoom() ================================================================
+
+const createNewRoom = async (socket, room) => {
+    await socket.join(room.roomId);
+    const roomCreated = socket.adapter.rooms.get(room.roomId).has(room.clientId);
+
+    if (roomCreated) {
+        roomsArray = [...roomsArray, room];
+        return room;
     }
 
-    roomsArray = [...roomsArray, room];
-
+    return null;
 };
 
-const dataToExport = { addNewClientToRoom, createNewRoom }
+
+//============================================================================================================================
+
+const dataToExport = { addNewClientToRoom, createNewRoom, doesRoomAlreadyExists };
+
 module.exports = dataToExport;

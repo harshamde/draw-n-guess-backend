@@ -4,7 +4,7 @@ const repository = require("../modal/repository");
 // =================================== doesRoomExist() ==================================================
 
 const doesRoomExist = (socket, roomId) => {
-    return socket.adapter.rooms.has(roomId);
+    return
 };
 
 
@@ -47,33 +47,21 @@ const joinRoom = async (socket, data) => {
 
 // ========================================= createRoom() ==============================================
 
-const createRoom = async (socket, data) => {
-    const newRoom = {
-        roomId: data.roomId,
-        clientId: socket.id,
-        clientName: data.userName,
-        role: 'admin',
-        gameStatus: 'lobby'
-    };
+const createRoom = async (socket, room) => {
 
-    const roomExist = await doesRoomExist(socket, newRoom.roomId);
+    const roomAlreadyExists = await repository.getRoomsModal().doesRoomAlreadyExists(socket, room.roomId);
 
-    if (roomExist) {
+    if (roomAlreadyExists) {
         return { status: 'FAILED', error: "Room already exist!", type: 'create room error', event: "room-creation-failure" };
     }
 
-    await socket.join(newRoom.roomId);
+    const roomDocument = repository.getRoomsModal().createNewRoom(socket, room);
 
-    const roomCreated = socket.adapter.rooms.get(newRoom.roomId).has(newRoom.clientId);
-
-    if (!roomCreated) {
+    if (roomDocument === null) {
         return { status: 'FAILED', error: "Unable to create room!", type: 'create room error', event: "room-creation-failure" };
     }
 
-    rooms.push(newRoom);
-
-    socket.emit("data-from-server", { status: "SUCCESS", message: "Room is created successfully!", event: "join-lobby", data: { totalPlayers: 1, rooomId: dataToSave.roomId } });
-
+    return { status: "SUCCESS", message: "Room is created successfully!", event: "join-lobby", data: roomDocument }
 }
 
 

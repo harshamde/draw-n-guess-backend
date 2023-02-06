@@ -1,7 +1,7 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const { SOCKET_CONNECTION, CREATE_ROOOM } = require('./common/socketEvents');
+const { SOCKET_CONNECTION } = require('./common/socketEvents');
 const controllers = require('./controller/controllers');
 
 //=======================================================================================================

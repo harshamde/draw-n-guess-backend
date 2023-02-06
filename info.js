@@ -14,22 +14,31 @@
 // =============================
 
 /* 
-const clientResult = {
-    roomId: number,
+
+const client ={
     clientId: number,
-    clientName: string,
-    clientAvatar: string,
+    roomId: number,
+    name: string,
+    avatar: string,
     score: number,
-    rank: number,  
+    rank: number,
+}
+
+const roomConfig = {
+    numberOfRounds: number,
+    timeForEachPlayer: number, (1min | 2min | 3min)
+    customWords: string[],
 }
 
 const rooom = {
     roomId: number,
-    roomClients: client[],
-    roomStatus: | "waiting_in_lobby" | "game_started",
-    roomConfig: {},
-    timeElapsed:{ minutes: number, seconds: number },
-    leaderBoard: clientResult[],
+    clients: client[],
+    status: | "waiting_in_lobby" | "game_started",
+    config: roomConfig,
+    remainingTime:{ minutes: number, seconds: number },
+    leaderBoard: client[], // sorted by score
+    pauseTime: 5 seconds,
+    timeToChooseWord: 10 seconds,
 }
 
 */
